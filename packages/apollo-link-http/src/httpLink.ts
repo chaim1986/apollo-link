@@ -12,6 +12,7 @@ import {
   UriFunction as _UriFunction,
 } from 'apollo-link-http-common';
 import { DefinitionNode } from 'graphql';
+import wxFetch from 'wxapp-fetch';
 
 export namespace HttpLink {
   //TODO Would much rather be able to export directly
@@ -41,13 +42,19 @@ export const createHttpLink = (linkOptions: HttpLink.Options = {}) => {
   } = linkOptions;
 
   // dev warnings to ensure fetch is present
-  checkFetcher(fetcher);
+  // when in wechat runtime enviroment, do not check fetch and let fetch = wxFetch.
+  if(typeof wx == "undefined" ) {
+      checkFetcher(fetcher);
+  } else {
+      fetch = wxFetch;
+  }
 
   //fetcher is set here rather than the destructuring to ensure fetch is
   //declared before referencing it. Reference in the destructuring would cause
   //a ReferenceError
   if (!fetcher) {
-    fetcher = fetch;
+      fetcher = fetch;
+      
   }
 
   const linkConfig = {
